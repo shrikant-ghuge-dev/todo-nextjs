@@ -1,23 +1,9 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 
+import { todos } from "../../../data/todos";
+
 export default function handler(req, res) {
-  const todos = [
-    {
-      id: 1,
-      title: "Test",
-      description: "This is test todo."
-    },
-    {
-      id: 2,
-      title: "Test1",
-      description: "This is test1 todo."
-    },
-    {
-      id: 3,
-      title: "Test2",
-      description: "This is test2 todo."
-    }
-  ];
+
   if (req.method === 'GET') {
     res.status(200).json(todos);
   } else if (req.method === 'POST') {
