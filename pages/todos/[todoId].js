@@ -1,21 +1,21 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 
-
 export default function todoDetails() {
-    let todoDetails;
+    const [todoDetails, setTodoDetails] = useState({});
 
     const router = useRouter();
     const todoId = router.query.todoId;
     useEffect(() => {
         fetch(`/api/todos/${todoId}`)
-            .then((res) => res)
+            .then((res) => res.json())
             .then((data) => {
-                todoDetails = data;
+                setTodoDetails(data[0]);
             });
     }, [])
     return (
-        <div>todoDetails
+        <div>
+            <h1>Todo Details</h1>
             <h2>{todoDetails?.title}</h2>
             <p>{todoDetails?.description}</p>
         </div>

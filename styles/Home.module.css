@@ -128,6 +128,7 @@
   padding: 10px 30px;
   border-color: #3c0fef;
   border-radius: 5px;
+  cursor: pointer;
 }
 
 .primary:hover {

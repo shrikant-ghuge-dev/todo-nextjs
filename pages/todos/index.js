@@ -1,14 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import styles from '../../styles/Home.module.css'
-// const btn = {
-//     "float": "right",
-//     "padding": "10px 30px",
-//     "background": "#3c0fef",
-//     "borderColor": "#3c0fef",
-//     "borderRadius": "5px",
-//     "color": "white"
-// }
+import Link from 'next/link'
 
 const heading = {
     "background": "rgb(131 192 255)",
@@ -41,15 +34,18 @@ const secondaryBtn = {
     "borderRadius": "5px",
     "color": "white",
     "background": "red",
-    "borderColor": "red"
+    "borderColor": "red",
+    "cursor": "pointer"
 }
 
 export default function Todos() {
     const [todos, setTodos] = useState([]);
     const [isAddVisible, setAddVisible] = useState(false);
+    const [addOrUpdate, setAddOrUpdate] = useState('Add');
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const router = useRouter()
+    const router = useRouter();
+    const [id, setId] = useState(null);
     useEffect(() => {
         fetch("/api/todos")
             .then((res) => res.json())
@@ -68,18 +64,35 @@ export default function Todos() {
 
     const onSubmitHandler = (e) => {
         const val = { title: e.target[0].value, description: e.target[1].value };
-        fetch('/api/todos', {
-            method: 'POST',
-            body: JSON.stringify(val),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }).then((res) => res.json())
-            .then((data) => {
-                loadData();
-                alert("Todo added successfully!");
-                resetForm();
-            });
+        if (addOrUpdate === 'Add') {
+            fetch('/api/todos', {
+                method: 'POST',
+                body: JSON.stringify(val),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then((res) => res.json())
+                .then((data) => {
+                    loadData();
+                    alert("Todo added successfully!");
+                    resetForm();
+                });
+        } else {
+            fetch(`/api/todos/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify(val),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then((res) => res.json())
+                .then((data) => {
+                    setTodos(data)
+                    alert("Todo updated successfully!");
+                    resetForm();
+                    setAddVisible(false);
+                });
+        }
+
 
         e.preventDefault();
     }
@@ -109,14 +122,16 @@ export default function Todos() {
     }
 
     const updateHandler = (todo) => {
+        setAddOrUpdate('Update');
         setAddVisible(true);
         setDescription(todo.description);
         setTitle(todo.title);
+        setId(todo.id)
     }
 
     return (
         <>
-            <h1 className='btn' style={heading}>Todos
+            <h1 className='btn' style={heading}><Link href="/">Todos</Link>
                 <button className={styles.primary} onClick={addHandler}>Add</button>
             </h1>
             {isAddVisible ?
@@ -125,13 +140,13 @@ export default function Todos() {
                     <input style={inputStyle} className={styles.m20} type="text" value={title} onChange={e => setTitle(e.target.value)} required />
                     <label>Description</label>
                     <textarea className={styles.m20} style={desc} type="text" value={description} onChange={e => setDescription(e.target.value)} required />
-                    <button className={styles.m20} style={secondaryBtn} type='submit'>Add</button>
+                    <button className={styles.m20} style={secondaryBtn} type='submit'>{addOrUpdate === 'Add' ? 'Add' : 'Update'}</button>
                     <button style={secondaryBtn} type='button' onClick={() => setAddVisible(false)}>Cancel</button>
                 </form>
                 : null
             }
             {
-                todos ?
+                todos.length > 0 ?
                     todos.map(todo => {
                         return (
                             <div key={todo.id} className={styles.strip} >
